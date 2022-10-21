@@ -31,6 +31,7 @@ export class DiggingEstimator {
     if (Math.floor(length) !== length || Math.floor(days) !== days || length < 0 || days < 0) {
       throw new InvalidFormatException();
     }
+
     if (Math.floor(length / days) > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
