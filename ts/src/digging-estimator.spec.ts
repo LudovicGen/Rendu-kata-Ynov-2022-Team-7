@@ -29,16 +29,16 @@ describe("digging estimator", () => {
     expect(result.total).toBe(48);
   });
 
-  it("should test TunelTooLongForDelayException", () => {
-    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+});
 
+describe("Throw Errors", () => {
+  it("should throw an error when too long delay exception", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+  
     expect(() => {
       estimator.tunnel(45, 2, "granite");
     }).toThrowError();
   });
-});
-
-describe("Invalid Format Exception", () => {
   it("should throw an error when the length is a float", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     expect(() => {
