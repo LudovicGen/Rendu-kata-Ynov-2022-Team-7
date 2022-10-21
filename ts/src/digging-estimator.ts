@@ -29,7 +29,6 @@ export class DiggingEstimator {
     const maxDigPerDay = 2 * maxDigPerRotation;
    
     if (Math.floor(length) !== length || Math.floor(days) !== days || length < 0 || days < 0) {
-      console.log('ICICICI')
       throw new InvalidFormatException();
     }
 
