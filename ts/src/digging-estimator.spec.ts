@@ -99,4 +99,11 @@ describe("Throw Errors", () => {
       estimator.tunnel(28, -2, "granite");
     }).toThrowError();
   });
+
+  it("should throw an error when the get method isn't mocked", () => {
+    const estimator = new DiggingEstimator();
+    expect(() => {
+      estimator.tunnel(28.5, 2, "granite");
+    }).toThrowError();
+  });
 });
