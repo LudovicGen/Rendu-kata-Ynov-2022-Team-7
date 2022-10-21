@@ -28,6 +28,34 @@ describe("digging estimator", () => {
 
     expect(result.total).toBe(48);
   });
+
+  it('should return correct team composition with 28l and 2days', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, 'granite');
+    const fakeDayTeam: Team = {
+      miners: 3,
+      healers: 1,
+      smithies: 2,
+      lighters: 0,
+      innKeepers: 8,
+      guards: 0,
+      guardManagers: 0,
+      washers: 2
+    } 
+    const fakeNightTeam: Team = {
+      miners: 3,
+      healers: 1,
+      smithies: 2,
+      lighters: 4,
+      innKeepers: 12,
+      guards: 5,
+      guardManagers: 2,
+      washers: 3
+    }
+    expect(result.dayTeam).toEqual(fakeDayTeam);
+    expect(result.nightTeam).toEqual(fakeNightTeam);
+    expect(result.total).toBe(48);
+  })
 });
 
 describe("Day team members", () => {
