@@ -1,4 +1,4 @@
-import { DiggingEstimator, TunnelTooLongForDelayException } from "./digging-estimator";
+import { DiggingEstimator } from "./digging-estimator";
 
 describe("digging estimator", () => {
   const myMock = jest.fn();
@@ -37,5 +37,12 @@ describe("digging estimator", () => {
     expect(() => {
       estimator.tunnel(45, 2, "granite");
     }).toThrowError();
+  });
+
+  it("should test TunnelWithFloatLengthReturnError", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    expect(() => {
+      estimator.tunnel(28.5, 2, "granite");
+    }).toThrowError()
   });
 });
