@@ -28,39 +28,105 @@ describe("digging estimator", () => {
 
     expect(result.total).toBe(48);
   });
+});
 
-  it("should fake dayTeam for tunnel 28 length and 2 days", () => {
-    const test: Team = {
-      miners: 3,
-      healers: 1,
-      smithies: 2,
-      lighters: 0,
-      innKeepers: 8,
-      guards: 0,
-      guardManagers: 0,
-      washers: 2,
-    };
-
+describe("Day team members", () => {
+  it("should be 3 miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam).toEqual(test);
+    expect(result.dayTeam.miners).toBe(3);
   });
 
-  it("should fake nightTeam for tunnel 28 length and 2 days", () => {
-    const test: Team = {
-      miners: 3,
-      healers: 1,
-      smithies: 2,
-      lighters: 4,
-      innKeepers: 12,
-      guards: 5,
-      guardManagers: 2,
-      washers: 3,
-    };
-
+  it("should be 1 healer", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam).toEqual(test);
+    expect(result.dayTeam.healers).toBe(1);
+  });
+
+  it("should be 2 smithies", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.smithies).toBe(2);
+  });
+
+  it("should be 0 lighters", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.lighters).toBe(0);
+  });
+
+  it("should be 8 inn keepers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.innKeepers).toBe(8);
+  });
+
+  it("should be 0 guards", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.guards).toBe(0);
+  });
+
+  it("should be 0 guard managers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.guardManagers).toBe(0);
+  });
+
+  it("should be 2 washers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.washers).toBe(2);
+  });
+});
+
+describe("Night team members", () => {
+  it("should be 3 miners", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.miners).toBe(3);
+  });
+
+  it("should be 1 healer", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.healers).toBe(1);
+  });
+
+  it("should be 2 smithies", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.smithies).toBe(2);
+  });
+
+  it("should be 4 lighters", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.lighters).toBe(4);
+  });
+
+  it("should be 12 inn keepers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.innKeepers).toBe(12);
+  });
+
+  it("should be 5 guards", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.guards).toBe(5);
+  });
+
+  it("should be 2 guard managers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.guardManagers).toBe(2);
+  });
+
+  it("should be 3 washers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.nightTeam.washers).toBe(3);
   });
 });
 
