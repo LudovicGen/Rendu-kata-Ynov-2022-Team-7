@@ -75,15 +75,7 @@ export class DiggingEstimator {
       this.getWashersAndGuardAndGuardManager(nt);
     }
 
-    if (dt.miners > 0) {
-      ++dt.healers;
-      ++dt.smithies;
-      ++dt.smithies;
-
-      dt.innKeepers = this.getInnKeeperCount(dt);
-
-      dt.washers = this.getWashersCount(dt);
-    }
+    this.dayShiftHandlings(dt);
 
     composition.total = this.updateTotal(composition);
     return composition;
@@ -125,6 +117,18 @@ export class DiggingEstimator {
       (t, n) => t + n
     );
     return totalDayTeam + totalNightTeam;
+  }
+
+  private dayShiftHandlings(team: Team): Team {
+    if (team.miners > 0) {
+      ++team.healers;
+      ++team.smithies;
+      ++team.smithies;
+
+      team.innKeepers = this.getInnKeeperCount(team);
+      team.washers = this.getWashersCount(team);
+    }
+    return team;
   }
 
   private getInnKeeperCount(
