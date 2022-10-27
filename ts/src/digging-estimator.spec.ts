@@ -1,4 +1,4 @@
-import { DiggingEstimator, Team } from "./digging-estimator";
+import { DiggingEstimator, Team, TunnelTooLongForDelayException } from "./digging-estimator";
 
 const myMock = jest.fn();
 class MockDiggingEstimator extends DiggingEstimator {
@@ -15,19 +15,50 @@ class MockDiggingEstimator extends DiggingEstimator {
   }
 }
 describe("digging estimator", () => {
+  it('should dig 3m by day in granite with 1 dwarf', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(3, 1, 'granite');
+
+    expect(result.dayTeam.miners).toBe(1);
+    expect(result.nightTeam.miners).toBe(0);
+  })
+
+  it('should be dig 3m by day in granite with 1 dwarf Return total 9', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(3, 1, 'granite');
+
+    expect(result.total).toBe(9);
+  })
+
+  it('should be dig 7m by day in granite with 3 dwarf', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(7, 1, 'granite');
+
+    expect(result.dayTeam.miners).toBe(3);
+    expect(result.nightTeam.miners).toBe(0);
+  })
+
+  it('should be dig 7m by day in granite with 3 dwarf Return total 9', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(7, 1, 'granite');
+
+    expect(result.total).toBe(16);
+  })
+
   it("should mock get DiggingEstimator Return Granite", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     estimator.tunnel(28, 2, "granite");
     expect(myMock).toHaveBeenCalledWith("granite");
   });
 
-  it("should mock get DiggingEstimator Return 48", () => {
+  it("should be dig 28m in 2days in granite Return total 48 dwarf needed", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
 
     const result = estimator.tunnel(28, 2, "granite");
 
     expect(result.total).toBe(48);
   });
+
 
   it('should return correct team composition with 28l and 2days', () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
