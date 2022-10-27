@@ -133,20 +133,7 @@ export class DiggingEstimator {
       }
     }
 
-    composition.total =
-      dt.miners +
-      dt.washers +
-      dt.healers +
-      dt.smithies +
-      dt.innKeepers +
-      nt.miners +
-      nt.washers +
-      nt.healers +
-      nt.smithies +
-      nt.innKeepers +
-      nt.guards +
-      nt.guardManagers +
-      nt.lighters;
+    composition.total = this.updateTotal(composition);
     return composition;
   }
 
@@ -159,6 +146,14 @@ export class DiggingEstimator {
     const url = `dtp://research.vin.co/digging-rate/${rockType}`;
     console.log(`Tried to fetch ${url}`);
     throw new Error("Does not work in test mode");
+  }
+
+  private updateTotal(team: TeamComposition): number {
+    const totalDayTeam = Object.values(team.dayTeam).reduce((t, n) => t + n);
+    const totalNightTeam = Object.values(team.nightTeam).reduce(
+      (t, n) => t + n
+    );
+    return totalDayTeam + totalNightTeam;
   }
 
   private getInnKeeperCount(
