@@ -6,6 +6,10 @@ export class InvalidFormatException extends Error {
   public message = "Invalid format";
 }
 
+export class NotWorkingInTestMode extends Error {
+  public message = "Does not work in test mode";
+}
+
 function lengthPerDay(length: number, days: number): number {
   return Math.floor(length / days);
 }
@@ -70,7 +74,7 @@ export class DiggingEstimator {
     // so a day team on 2 miners and a night team of 1 miner dig 8.5m/d
     const url = `dtp://research.vin.co/digging-rate/${rockType}`;
     console.log(`Tried to fetch ${url}`);
-    throw new Error("Does not work in test mode");
+    throw new NotWorkingInTestMode();
   }
 
   private getWashersAndGuardAndGuardManager(nt: Team): Team {
