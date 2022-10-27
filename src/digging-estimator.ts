@@ -7,7 +7,7 @@ export class InvalidFormatException extends Error {
 }
 
 export class NotWorkingInTestMode extends Error {
-  public message = "Does not work in test mode";
+  message = "Does not work in test mode";
 }
 
 function lengthPerDay(length: number, days: number): number {
@@ -167,9 +167,11 @@ export class DiggingEstimator {
   public tunnel(
     length: number,
     days: number,
-    rockType: string
+    rockType: string,
+    location?: string
   ): TeamComposition {
     const digPerRotation = this.get(rockType);
+    const areThereGoblins = this.areThereGoblins(location);
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
 
@@ -193,6 +195,12 @@ export class DiggingEstimator {
       digPerRotation,
       maxDigPerRotation
     );
+  }
+
+  protected areThereGoblins(location?: string): boolean{
+    const url = `dtp://research.vin.co/are-there-goblins/${location}`
+    console.log(`Tried to fetch ${url}`);
+    throw new NotWorkingInTestMode();
   }
 
   protected get(rockType: string): number[] {
