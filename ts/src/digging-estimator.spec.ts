@@ -1,7 +1,4 @@
-import {
-  DiggingEstimator,
-  Team,
-} from "./digging-estimator";
+import { DiggingEstimator, Team } from "./digging-estimator";
 
 const myMock = jest.fn();
 class MockDiggingEstimator extends DiggingEstimator {

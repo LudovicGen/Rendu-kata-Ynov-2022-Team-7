@@ -1,8 +1,6 @@
-export class TunnelTooLongForDelayException extends Error {
-}
+export class TunnelTooLongForDelayException extends Error {}
 
-export class InvalidFormatException extends Error {
-}
+export class InvalidFormatException extends Error {}
 
 export class Team {
   miners = 0;
@@ -27,8 +25,13 @@ export class DiggingEstimator {
     const digPerRotation = this.get(rockType);
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
-   
-    if (Math.floor(length) !== length || Math.floor(days) !== days || length < 0 || days < 0) {
+
+    if (
+      Math.floor(length) !== length ||
+      Math.floor(days) !== days ||
+      length < 0 ||
+      days < 0
+    ) {
       throw new InvalidFormatException();
     }
 
@@ -53,12 +56,6 @@ export class DiggingEstimator {
     const dt = composition.dayTeam;
     const nt = composition.nightTeam;
 
-    if (dt.miners > 0) {
-      ++dt.healers;
-      ++dt.smithies;
-      ++dt.smithies;
-    }
-
     if (nt.miners > 0) {
       ++nt.healers;
       ++nt.smithies;
@@ -70,12 +67,33 @@ export class DiggingEstimator {
     }
 
     if (dt.miners > 0) {
-      dt.innKeepers = this.getInnKeeperCount(dt.miners, dt.healers, dt.smithies, dt.lighters);
-      dt.washers = Math.ceil((dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10);
+      ++dt.healers;
+      ++dt.smithies;
+      ++dt.smithies;
+    }
+
+    if (dt.miners > 0) {
+      dt.innKeepers = this.getInnKeeperCount(
+        dt.miners,
+        dt.healers,
+        dt.smithies,
+        dt.lighters
+      );
+      dt.washers = this.getWashersCount(
+        dt.miners,
+        dt.healers,
+        dt.smithies,
+        dt.innKeepers
+      );
     }
 
     if (nt.miners > 0) {
-      nt.innKeepers = this.getInnKeeperCount(nt.miners, nt.healers, nt.smithies, nt.lighters);
+      nt.innKeepers = this.getInnKeeperCount(
+        nt.miners,
+        nt.healers,
+        nt.smithies,
+        nt.lighters
+      );
     }
 
     // eslint-disable-next-line no-constant-condition
@@ -84,21 +102,48 @@ export class DiggingEstimator {
       const oldGuard = nt.guards;
       const oldChiefGuard = nt.guardManagers;
 
-      nt.washers = Math.ceil((nt.miners + nt.healers + nt.smithies + nt.innKeepers + nt.lighters + nt.guards + nt.guardManagers) / 10);
-      nt.guards = Math.ceil((nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3);
-      nt.guardManagers = Math.ceil((nt.guards) / 3);
+      nt.washers = this.getWashersCount(
+        nt.miners,
+        nt.healers,
+        nt.smithies,
+        nt.innKeepers,
+        nt.lighters,
+        nt.guards,
+        nt.guardManagers
+      );
 
-      if (oldWashers === nt.washers && oldGuard === nt.guards && oldChiefGuard === nt.guardManagers) {
+      nt.guards = Math.ceil(
+        (nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3
+      );
+      nt.guardManagers = Math.ceil(nt.guards / 3);
+
+      if (
+        oldWashers === nt.washers &&
+        oldGuard === nt.guards &&
+        oldChiefGuard === nt.guardManagers
+      ) {
         break;
       }
     }
 
-    composition.total = dt.miners + dt.washers + dt.healers + dt.smithies + dt.innKeepers +
-      nt.miners + nt.washers +  nt.healers  + nt.smithies  + nt.innKeepers + nt.guards + nt.guardManagers + nt.lighters;
+    composition.total =
+      dt.miners +
+      dt.washers +
+      dt.healers +
+      dt.smithies +
+      dt.innKeepers +
+      nt.miners +
+      nt.washers +
+      nt.healers +
+      nt.smithies +
+      nt.innKeepers +
+      nt.guards +
+      nt.guardManagers +
+      nt.lighters;
     return composition;
   }
 
-  protected get(rockType: string) : number[] {
+  protected get(rockType: string): number[] {
     // For example, for granite it returns [0, 3, 5.5, 7]
     // if you put 0 dwarf, you dig 0m/d/team
     // if you put 1 dwarf, you dig 3m/d/team
@@ -106,11 +151,36 @@ export class DiggingEstimator {
     // so a day team on 2 miners and a night team of 1 miner dig 8.5m/d
     const url = `dtp://research.vin.co/digging-rate/${rockType}`;
     console.log(`Tried to fetch ${url}`);
-    throw new Error('Does not work in test mode');
-
+    throw new Error("Does not work in test mode");
   }
 
-  private getInnKeeperCount(miners: number, healers: number, smithies: number, lighters?: number): number {
+  private getInnKeeperCount(
+    miners: number,
+    healers: number,
+    smithies: number,
+    lighters?: number
+  ): number {
     return Math.ceil((miners + healers + smithies + (lighters || 0)) / 4) * 4;
+  }
+
+  private getWashersCount(
+    miners: number,
+    healers: number,
+    smithies: number,
+    innKeepers: number,
+    lighters?: number,
+    guards?: number,
+    guardManagers?: number
+  ): number {
+    return Math.ceil(
+      (miners +
+        healers +
+        smithies +
+        innKeepers +
+        (lighters || 0) +
+        (guards || 0) +
+        (guardManagers || 0)) /
+        10
+    );
   }
 }
