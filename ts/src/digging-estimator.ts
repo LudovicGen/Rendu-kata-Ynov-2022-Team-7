@@ -70,12 +70,12 @@ export class DiggingEstimator {
     }
 
     if (dt.miners > 0) {
-      dt.innKeepers = Math.ceil((dt.miners + dt.healers + dt.smithies) / 4) * 4;
+      dt.innKeepers = this.getInnKeeperCount(dt.miners, dt.healers, dt.smithies, dt.lighters);
       dt.washers = Math.ceil((dt.miners + dt.healers + dt.smithies + dt.innKeepers) / 10);
     }
 
     if (nt.miners > 0) {
-      nt.innKeepers = Math.ceil((nt.miners + nt.healers + nt.smithies + nt.lighters) / 4) * 4;
+      nt.innKeepers = this.getInnKeeperCount(nt.miners, nt.healers, nt.smithies, nt.lighters);
     }
 
     // eslint-disable-next-line no-constant-condition
@@ -108,5 +108,9 @@ export class DiggingEstimator {
     console.log(`Tried to fetch ${url}`);
     throw new Error('Does not work in test mode');
 
+  }
+
+  private getInnKeeperCount(miners: number, healers: number, smithies: number, lighters?: number): number {
+    return Math.ceil((miners + healers + smithies + (lighters || 0)) / 4) * 4;
   }
 }
