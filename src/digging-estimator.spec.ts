@@ -85,6 +85,7 @@ describe("digging estimator", () => {
       guards: 0,
       guardManagers: 0,
       washers: 2,
+      protectors: 0,
     };
     const fakeNightTeam: Team = {
       miners: 3,
@@ -95,6 +96,7 @@ describe("digging estimator", () => {
       guards: 5,
       guardManagers: 2,
       washers: 3,
+      protectors: 0,
     };
     expect(teamComposition.dayTeam).toEqual(fakeDayTeam);
     expect(teamComposition.nightTeam).toEqual(fakeNightTeam);
@@ -291,3 +293,19 @@ describe("Throw Errors", () => {
     }).toThrowError('Does not work in test mode');
   });
 });
+
+describe('Digging Estimator with location full goblins', () => {
+  it('should be protector', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
+    const teamComposition = estimator.tunnel(28, 2, 'granite');
+    expect(teamComposition.dayTeam.protectors).toBe(2);
+    expect(teamComposition.nightTeam.protectors).toBe(2);
+  })
+
+  it('should be more lighters cause of goblins', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
+    const teamComposition = estimator.tunnel(28, 2, 'granite');
+    expect(teamComposition.dayTeam.lighters).toBe(0);
+    expect(teamComposition.nightTeam.lighters).toBe(6);
+  })
+})

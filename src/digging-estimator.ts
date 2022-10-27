@@ -22,6 +22,7 @@ export class Team {
   guards = 0;
   guardManagers = 0;
   washers = 0;
+  protectors = 0;
 }
 
 export class TeamComposition {
@@ -33,7 +34,8 @@ export class TeamComposition {
     tunnelLength: number,
     tunnelDays: number,
     distancePerDwarf: number[],
-    maxDistanceDwarf: number
+    maxDistanceDwarf: number,
+    goblinsHere: boolean
   ): TeamComposition {
     const teamCompo = new TeamComposition();
     this.getMiners(
@@ -43,8 +45,8 @@ export class TeamComposition {
       distancePerDwarf,
       maxDistanceDwarf
     );
-    this.nightShiftHandlings(teamCompo.nightTeam);
-    this.dayShiftHandlings(teamCompo.dayTeam);
+    this.nightShiftHandlings(teamCompo.nightTeam, goblinsHere);
+    this.dayShiftHandlings(teamCompo.dayTeam, goblinsHere);
 
     teamCompo.total = this.updateTotal(teamCompo);
     return teamCompo;
@@ -70,25 +72,27 @@ export class TeamComposition {
     return teamCompo;
   }
 
-  private dayShiftHandlings(team: Team): Team {
+  private dayShiftHandlings(team: Team, goblinsHere: boolean): Team {
     if (team.miners > 0) {
       ++team.healers;
       ++team.smithies;
       ++team.smithies;
 
+      team.protectors = goblinsHere ? 2 : 0;
       team.innKeepers = this.getInnKeeperCount(team);
       team.washers = this.getWashersCount(team);
     }
     return team;
   }
 
-  private nightShiftHandlings(team: Team): Team {
+  private nightShiftHandlings(team: Team, goblinsHere: boolean): Team {
     if (team.miners > 0) {
       ++team.healers;
       ++team.smithies;
       ++team.smithies;
       team.lighters = team.miners + 1;
 
+      this.getProtectorsNight(team, goblinsHere);
       team.innKeepers = this.getInnKeeperCount(team);
 
       this.getWashersAndGuardAndGuardManager(team);
@@ -101,6 +105,14 @@ export class TeamComposition {
       (t, n) => t + n
     );
     return totalDayTeam + totalNightTeam;
+  }
+
+  private getProtectorsNight(team: Team, goblinsHere: boolean): Team {
+    if (goblinsHere) {
+      team.protectors = +2;
+      team.lighters = team.lighters + team.protectors
+    }
+    return team;
   }
 
   private getWashersAndGuardAndGuardManager(nt: Team): Team {
@@ -155,6 +167,7 @@ export class TeamComposition {
         team.healers +
         team.smithies +
         team.innKeepers +
+        (team.protectors || 0) +
         (team.lighters || 0) +
         (team.guards || 0) +
         (team.guardManagers || 0)) /
@@ -193,12 +206,13 @@ export class DiggingEstimator {
       length,
       days,
       digPerRotation,
-      maxDigPerRotation
+      maxDigPerRotation,
+      areThereGoblins
     );
   }
 
-  protected areThereGoblins(location?: string): boolean{
-    const url = `dtp://research.vin.co/are-there-goblins/${location}`
+  protected areThereGoblins(location?: string): boolean {
+    const url = `dtp://research.vin.co/are-there-goblins/${location}`;
     console.log(`Tried to fetch ${url}`);
     throw new NotWorkingInTestMode();
   }
