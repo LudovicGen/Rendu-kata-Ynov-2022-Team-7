@@ -70,12 +70,9 @@ export class DiggingEstimator {
       ++nt.smithies;
       nt.lighters = nt.miners + 1;
 
-      nt.innKeepers = this.getInnKeeperCount(
-        nt.miners,
-        nt.healers,
-        nt.smithies,
-        nt.lighters
-      );
+      nt.innKeepers = this.getInnKeeperCount(nt);
+
+      this.getWashersAndGuardAndGuardManager(nt);
     }
 
     if (dt.miners > 0) {
@@ -83,54 +80,9 @@ export class DiggingEstimator {
       ++dt.smithies;
       ++dt.smithies;
 
-      dt.innKeepers = this.getInnKeeperCount(
-        dt.miners,
-        dt.healers,
-        dt.smithies,
-        dt.lighters
-      );
+      dt.innKeepers = this.getInnKeeperCount(dt);
 
-      dt.washers = this.getWashersCount(
-        dt.miners,
-        dt.healers,
-        dt.smithies,
-        dt.innKeepers
-      );
-    }
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const oldWashers = nt.washers;
-      const oldGuard = nt.guards;
-      const oldChiefGuard = nt.guardManagers;
-
-      nt.washers = this.getWashersCount(
-        nt.miners,
-        nt.healers,
-        nt.smithies,
-        nt.innKeepers,
-        nt.lighters,
-        nt.guards,
-        nt.guardManagers
-      );
-
-      nt.guards = this.getGuardCount(
-        nt.miners,
-        nt.healers,
-        nt.smithies,
-        nt.lighters,
-        nt.washers
-      );
-
-      nt.guardManagers = this.getGuardManagerCount(nt.guards);
-
-      if (
-        oldWashers === nt.washers &&
-        oldGuard === nt.guards &&
-        oldChiefGuard === nt.guardManagers
-      ) {
-        break;
-      }
+      dt.washers = this.getWashersCount(dt);
     }
 
     composition.total = this.updateTotal(composition);
@@ -148,6 +100,25 @@ export class DiggingEstimator {
     throw new Error("Does not work in test mode");
   }
 
+  private getWashersAndGuardAndGuardManager(nt: Team): Team {
+    const oldWashers = nt.washers;
+    const oldGuard = nt.guards;
+    const oldChiefGuard = nt.guardManagers;
+
+    while (
+      oldWashers === nt.washers &&
+      oldGuard === nt.guards &&
+      oldChiefGuard === nt.guardManagers
+    ) {
+      nt.washers = this.getWashersCount(nt);
+
+      nt.guards = this.getGuardCount(nt);
+
+      nt.guardManagers = this.getGuardManagerCount(nt);
+    }
+    return nt;
+  }
+
   private updateTotal(team: TeamComposition): number {
     const totalDayTeam = Object.values(team.dayTeam).reduce((t, n) => t + n);
     const totalNightTeam = Object.values(team.nightTeam).reduce(
@@ -157,45 +128,41 @@ export class DiggingEstimator {
   }
 
   private getInnKeeperCount(
-    miners: number,
-    healers: number,
-    smithies: number,
-    lighters?: number
+    team: Omit<Team, "innKeepers" | "guards" | "guardManagers" | "washers">
   ): number {
-    return Math.ceil((miners + healers + smithies + (lighters || 0)) / 4) * 4;
+    return (
+      Math.ceil(
+        (team.miners + team.healers + team.smithies + (team.lighters || 0)) / 4
+      ) * 4
+    );
   }
 
   private getGuardCount(
-    miners: number,
-    healers: number,
-    smithies: number,
-    lighters: number,
-    washers: number
-  ): number {
-    return Math.ceil((miners + healers + smithies + lighters + washers) / 3);
-  }
-
-  private getGuardManagerCount(guards: number): number {
-    return Math.ceil(guards / 3);
-  }
-
-  private getWashersCount(
-    miners: number,
-    healers: number,
-    smithies: number,
-    innKeepers: number,
-    lighters?: number,
-    guards?: number,
-    guardManagers?: number
+    team: Omit<Team, "innKeepers" | "guards" | "guardManagers">
   ): number {
     return Math.ceil(
-      (miners +
-        healers +
-        smithies +
-        innKeepers +
-        (lighters || 0) +
-        (guards || 0) +
-        (guardManagers || 0)) /
+      (team.miners +
+        team.healers +
+        team.smithies +
+        team.lighters +
+        team.washers) /
+        3
+    );
+  }
+
+  private getGuardManagerCount(team: Pick<Team, "guards">): number {
+    return Math.ceil(team.guards / 3);
+  }
+
+  private getWashersCount(team: Omit<Team, "washers">): number {
+    return Math.ceil(
+      (team.miners +
+        team.healers +
+        team.smithies +
+        team.innKeepers +
+        (team.lighters || 0) +
+        (team.guards || 0) +
+        (team.guardManagers || 0)) /
         10
     );
   }
