@@ -1,9 +1,9 @@
 export class TunnelTooLongForDelayException extends Error {
-  public message = 'Tunnel too long for delay'
+  public message = "Tunnel too long for delay";
 }
 
 export class InvalidFormatException extends Error {
-  public message = 'Invalid format'
+  public message = "Invalid format";
 }
 
 export class Team {
@@ -25,10 +25,18 @@ export class TeamComposition {
 }
 
 export class DiggingEstimator {
-  tunnel(length: number, days: number, rockType: string): TeamComposition {
+  public tunnel(
+    length: number,
+    days: number,
+    rockType: string
+  ): TeamComposition {
     const digPerRotation = this.get(rockType);
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
+    const composition = new TeamComposition();
+    const lengthPerDay = Math.floor(length / days);
+    const dt = composition.dayTeam;
+    const nt = composition.nightTeam;
 
     if (
       Math.floor(length) !== length ||
@@ -39,26 +47,22 @@ export class DiggingEstimator {
       throw new InvalidFormatException();
     }
 
-    if (Math.floor(length / days) > maxDigPerDay) {
+    if (lengthPerDay > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
-    const composition = new TeamComposition();
 
     // Miners
-    for (let i = 0; i < digPerRotation.length - 1; ++i) {
-      if (digPerRotation[i] < Math.floor(length / days)) {
+    digPerRotation.slice(0, 3).forEach((dig) => {
+      if (dig < lengthPerDay) {
         composition.dayTeam.miners++;
       }
-    }
-    if (Math.floor(length / days) > maxDigPerRotation) {
-      for (let i = 0; i < digPerRotation.length - 1; ++i) {
-        if (digPerRotation[i] + maxDigPerRotation < Math.floor(length / days)) {
-          composition.nightTeam.miners++;
-        }
+      if (
+        lengthPerDay > maxDigPerRotation &&
+        dig + maxDigPerRotation < lengthPerDay
+      ) {
+        composition.nightTeam.miners++;
       }
-    }
-    const dt = composition.dayTeam;
-    const nt = composition.nightTeam;
+    });
 
     if (nt.miners > 0) {
       ++nt.healers;
@@ -118,7 +122,7 @@ export class DiggingEstimator {
         nt.washers
       );
 
-      nt.guardManagers =this.getGuardManagerCount(nt.guards);
+      nt.guardManagers = this.getGuardManagerCount(nt.guards);
 
       if (
         oldWashers === nt.washers &&
