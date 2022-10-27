@@ -1,4 +1,7 @@
-import { DiggingEstimator, Team, TunnelTooLongForDelayException } from "./digging-estimator";
+import {
+  DiggingEstimator,
+  Team,
+} from "./digging-estimator";
 
 const myMock = jest.fn();
 class MockDiggingEstimator extends DiggingEstimator {
@@ -15,35 +18,35 @@ class MockDiggingEstimator extends DiggingEstimator {
   }
 }
 describe("digging estimator", () => {
-  it('should dig 3m by day in granite with 1 dwarf', () => {
+  it("should dig 3m by day in granite with 1 dwarf", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(3, 1, 'granite');
+    const teamComposition = estimator.tunnel(3, 1, "granite");
 
-    expect(result.dayTeam.miners).toBe(1);
-    expect(result.nightTeam.miners).toBe(0);
-  })
+    expect(teamComposition.dayTeam.miners).toBe(1);
+    expect(teamComposition.nightTeam.miners).toBe(0);
+  });
 
-  it('should be dig 3m by day in granite with 1 dwarf Return total 9', () => {
+  it("should be dig 3m by day in granite with 1 dwarf Return total 9", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(3, 1, 'granite');
+    const teamComposition = estimator.tunnel(3, 1, "granite");
 
-    expect(result.total).toBe(9);
-  })
+    expect(teamComposition.total).toBe(9);
+  });
 
-  it('should be dig 7m by day in granite with 3 dwarf', () => {
+  it("should be dig 7m by day in granite with 3 dwarf", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(7, 1, 'granite');
+    const teamComposition = estimator.tunnel(7, 1, "granite");
 
-    expect(result.dayTeam.miners).toBe(3);
-    expect(result.nightTeam.miners).toBe(0);
-  })
+    expect(teamComposition.dayTeam.miners).toBe(3);
+    expect(teamComposition.nightTeam.miners).toBe(0);
+  });
 
-  it('should be dig 7m by day in granite with 3 dwarf Return total 9', () => {
+  it("should be dig 7m by day in granite with 3 dwarf Return total 9", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(7, 1, 'granite');
+    const teamComposition = estimator.tunnel(7, 1, "granite");
 
-    expect(result.total).toBe(16);
-  })
+    expect(teamComposition.total).toBe(16);
+  });
 
   it("should mock get DiggingEstimator Return Granite", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
@@ -54,15 +57,14 @@ describe("digging estimator", () => {
   it("should be dig 28m in 2days in granite Return total 48 dwarf needed", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
 
-    const result = estimator.tunnel(28, 2, "granite");
+    const teamComposition = estimator.tunnel(28, 2, "granite");
 
-    expect(result.total).toBe(48);
+    expect(teamComposition.total).toBe(48);
   });
 
-
-  it('should return correct team composition with 28l and 2days', () => {
+  it("should return correct team composition with 28l and 2days", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, 'granite');
+    const teamComposition = estimator.tunnel(28, 2, "granite");
     const fakeDayTeam: Team = {
       miners: 3,
       healers: 1,
@@ -71,8 +73,8 @@ describe("digging estimator", () => {
       innKeepers: 8,
       guards: 0,
       guardManagers: 0,
-      washers: 2
-    } 
+      washers: 2,
+    };
     const fakeNightTeam: Team = {
       miners: 3,
       healers: 1,
@@ -81,123 +83,150 @@ describe("digging estimator", () => {
       innKeepers: 12,
       guards: 5,
       guardManagers: 2,
-      washers: 3
-    }
-    expect(result.dayTeam).toEqual(fakeDayTeam);
-    expect(result.nightTeam).toEqual(fakeNightTeam);
-    expect(result.total).toBe(48);
-  })
+      washers: 3,
+    };
+    expect(teamComposition.dayTeam).toEqual(fakeDayTeam);
+    expect(teamComposition.nightTeam).toEqual(fakeNightTeam);
+    expect(teamComposition.total).toBe(48);
+  });
 
-  it('should have 1 lighter in night team by miners and more 1 for camp', () => {
+  it("should have 1 lighter in night team by miners and more 1 for camp", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, 'granite');
-    expect(result.nightTeam.lighters).toBe(4);
-  })
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.lighters).toBe(4);
+  });
 
   it("should haven't lighter in day team by miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.lighters).toBe(0);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.lighters).toBe(0);
+  });
+
+  it("should need 1 dwarf guard manager for 3 guards by day return 1 guards managers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const totalDay = 2;
+    const teamComposition = estimator.tunnel(28, totalDay, "granite");
+
+    expect(teamComposition.nightTeam.guardManagers / totalDay).toBe(1);
+  });
+
+  it("should need 1 inn keeper for 1 miners return 1 inn keepers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const teamComposition = estimator.tunnel(3, 1, "granite");
+    const keepJustMiner =
+      teamComposition.dayTeam.innKeepers -
+      (teamComposition.dayTeam.healers + teamComposition.dayTeam.smithies);
+
+    expect(keepJustMiner).toBe(1);
+  });
+
+  it("should need 1 dwarf washers by 10 dwarfs by day return 2 washers", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+
+    expect(
+      teamComposition.nightTeam.washers + teamComposition.dayTeam.washers
+    ).toBe(5);
   });
 });
 
 describe("Day team members for dig tunnel 28m and 2days", () => {
   it("should be 3 miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.miners).toBe(3);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.miners).toBe(3);
   });
 
   it("should be 1 healer", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.healers).toBe(1);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.healers).toBe(1);
   });
 
   it("should be 2 smithies", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.smithies).toBe(2);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.smithies).toBe(2);
   });
 
   it("should be 0 lighters", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.lighters).toBe(0);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.lighters).toBe(0);
   });
 
   it("should be 8 inn keepers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.innKeepers).toBe(8);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.innKeepers).toBe(8);
   });
 
   it("should be 0 guards", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.guards).toBe(0);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.guards).toBe(0);
   });
 
   it("should be 0 guard managers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.guardManagers).toBe(0);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.guardManagers).toBe(0);
   });
 
   it("should be 2 washers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.dayTeam.washers).toBe(2);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.dayTeam.washers).toBe(2);
   });
 });
 
 describe("Night team members for dig tunnel 28m and 2days", () => {
   it("should be 3 miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.miners).toBe(3);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.miners).toBe(3);
   });
 
   it("should be 1 healer", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.healers).toBe(1);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.healers).toBe(1);
   });
 
   it("should be 2 smithies", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.smithies).toBe(2);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.smithies).toBe(2);
   });
 
   it("should be 4 lighters", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.lighters).toBe(4);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.lighters).toBe(4);
   });
 
   it("should be 12 inn keepers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.innKeepers).toBe(12);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.innKeepers).toBe(12);
   });
 
   it("should be 5 guards", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.guards).toBe(5);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.guards).toBe(5);
   });
 
   it("should be 2 guard managers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.guardManagers).toBe(2);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.guardManagers).toBe(2);
   });
 
   it("should be 3 washers", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
-    const result = estimator.tunnel(28, 2, "granite");
-    expect(result.nightTeam.washers).toBe(3);
+    const teamComposition = estimator.tunnel(28, 2, "granite");
+    expect(teamComposition.nightTeam.washers).toBe(3);
   });
 });
 
