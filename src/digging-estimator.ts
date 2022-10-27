@@ -27,81 +27,47 @@ export class Team {
 export class TeamComposition {
   dayTeam: Team = new Team();
   nightTeam: Team = new Team();
-
   total = 0;
-}
 
-export class DiggingEstimator {
-  public tunnel(
-    length: number,
-    days: number,
-    rockType: string
+  public getTeamComposition(
+    tunnelLength: number,
+    tunnelDays: number,
+    distancePerDwarf: number[],
+    maxDistanceDwarf: number
   ): TeamComposition {
-    const digPerRotation = this.get(rockType);
-    const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
-    const maxDigPerDay = 2 * maxDigPerRotation;
-    const composition = new TeamComposition();
-    const dt = composition.dayTeam;
-    const nt = composition.nightTeam;
-
-    if (
-      Math.floor(length) !== length ||
-      Math.floor(days) !== days ||
-      length < 0 ||
-      days < 0
-    ) {
-      throw new InvalidFormatException();
-    }
-
-    if (lengthPerDay(length, days) > maxDigPerDay) {
-      throw new TunnelTooLongForDelayException();
-    }
-
-    // Miners
-    this.getMiners(composition, length, days, digPerRotation, maxDigPerRotation);
-    this.nightShiftHandlings(nt);
-    this.dayShiftHandlings(dt);
-
-    composition.total = this.updateTotal(composition);
-    return composition;
-  }
-
-  protected get(rockType: string): number[] {
-    // For example, for granite it returns [0, 3, 5.5, 7]
-    // if you put 0 dwarf, you dig 0m/d/team
-    // if you put 1 dwarf, you dig 3m/d/team
-    // 2 dwarves = 5.5m/d/team
-    // so a day team on 2 miners and a night team of 1 miner dig 8.5m/d
-    const url = `dtp://research.vin.co/digging-rate/${rockType}`;
-    console.log(`Tried to fetch ${url}`);
-    throw new NotWorkingInTestMode();
-  }
-
-  private getWashersAndGuardAndGuardManager(nt: Team): Team {
-    const oldWashers = nt.washers;
-    const oldGuard = nt.guards;
-    const oldChiefGuard = nt.guardManagers;
-
-    while (
-      oldWashers === nt.washers &&
-      oldGuard === nt.guards &&
-      oldChiefGuard === nt.guardManagers
-    ) {
-      nt.washers = this.getWashersCount(nt);
-
-      nt.guards = this.getGuardCount(nt);
-
-      nt.guardManagers = this.getGuardManagerCount(nt);
-    }
-    return nt;
-  }
-
-  private updateTotal(team: TeamComposition): number {
-    const totalDayTeam = Object.values(team.dayTeam).reduce((t, n) => t + n);
-    const totalNightTeam = Object.values(team.nightTeam).reduce(
-      (t, n) => t + n
+    const teamCompo = new TeamComposition();
+    this.getMiners(
+      teamCompo,
+      tunnelLength,
+      tunnelDays,
+      distancePerDwarf,
+      maxDistanceDwarf
     );
-    return totalDayTeam + totalNightTeam;
+    this.nightShiftHandlings(teamCompo.nightTeam);
+    this.dayShiftHandlings(teamCompo.dayTeam);
+
+    teamCompo.total = this.updateTotal(teamCompo);
+    return teamCompo;
+  }
+  private getMiners(
+    teamCompo: TeamComposition,
+    tunnelLength: number,
+    days: number,
+    distancePerDwarf: number[],
+    MaxDistanceDwarf: number
+  ): TeamComposition {
+    distancePerDwarf.slice(0, 3).forEach((dig) => {
+      if (dig < lengthPerDay(tunnelLength, days)) {
+        teamCompo.dayTeam.miners++;
+      }
+      if (
+        lengthPerDay(tunnelLength, days) > MaxDistanceDwarf &&
+        dig + MaxDistanceDwarf < lengthPerDay(tunnelLength, days)
+      ) {
+        teamCompo.nightTeam.miners++;
+      }
+    });
+    return teamCompo;
   }
 
   private dayShiftHandlings(team: Team): Team {
@@ -129,20 +95,31 @@ export class DiggingEstimator {
     }
     return team;
   }
-  
-  private getMiners(teamCompo: TeamComposition, tunnelLength: number, days: number, distancePerDwarf: number[], MaxDistanceDwarf: number): TeamComposition {
-    distancePerDwarf.slice(0, 3).forEach((dig) => {
-      if (dig < lengthPerDay(tunnelLength, days)) {
-        teamCompo.dayTeam.miners++;
-      }
-      if (
-        lengthPerDay(tunnelLength, days) > MaxDistanceDwarf &&
-        dig + MaxDistanceDwarf < lengthPerDay(tunnelLength, days)
-      ) {
-        teamCompo.nightTeam.miners++;
-      }
-    });
-    return teamCompo;
+  private updateTotal(team: TeamComposition): number {
+    const totalDayTeam = Object.values(team.dayTeam).reduce((t, n) => t + n);
+    const totalNightTeam = Object.values(team.nightTeam).reduce(
+      (t, n) => t + n
+    );
+    return totalDayTeam + totalNightTeam;
+  }
+
+  private getWashersAndGuardAndGuardManager(nt: Team): Team {
+    const oldWashers = nt.washers;
+    const oldGuard = nt.guards;
+    const oldChiefGuard = nt.guardManagers;
+
+    while (
+      oldWashers === nt.washers &&
+      oldGuard === nt.guards &&
+      oldChiefGuard === nt.guardManagers
+    ) {
+      nt.washers = this.getWashersCount(nt);
+
+      nt.guards = this.getGuardCount(nt);
+
+      nt.guardManagers = this.getGuardManagerCount(nt);
+    }
+    return nt;
   }
 
   private getInnKeeperCount(
@@ -183,5 +160,49 @@ export class DiggingEstimator {
         (team.guardManagers || 0)) /
         10
     );
+  }
+}
+
+export class DiggingEstimator {
+  public tunnel(
+    length: number,
+    days: number,
+    rockType: string
+  ): TeamComposition {
+    const digPerRotation = this.get(rockType);
+    const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
+    const maxDigPerDay = 2 * maxDigPerRotation;
+
+    if (
+      Math.floor(length) !== length ||
+      Math.floor(days) !== days ||
+      length < 0 ||
+      days < 0
+    ) {
+      throw new InvalidFormatException();
+    }
+
+    if (lengthPerDay(length, days) > maxDigPerDay) {
+      throw new TunnelTooLongForDelayException();
+    }
+
+    const composition = new TeamComposition();
+    return composition.getTeamComposition(
+      length,
+      days,
+      digPerRotation,
+      maxDigPerRotation
+    );
+  }
+
+  protected get(rockType: string): number[] {
+    // For example, for granite it returns [0, 3, 5.5, 7]
+    // if you put 0 dwarf, you dig 0m/d/team
+    // if you put 1 dwarf, you dig 3m/d/team
+    // 2 dwarves = 5.5m/d/team
+    // so a day team on 2 miners and a night team of 1 miner dig 8.5m/d
+    const url = `dtp://research.vin.co/digging-rate/${rockType}`;
+    console.log(`Tried to fetch ${url}`);
+    throw new NotWorkingInTestMode();
   }
 }
