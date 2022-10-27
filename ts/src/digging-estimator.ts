@@ -60,39 +60,33 @@ export class DiggingEstimator {
       ++nt.healers;
       ++nt.smithies;
       ++nt.smithies;
-    }
-
-    if (nt.miners > 0) {
       nt.lighters = nt.miners + 1;
+
+      nt.innKeepers = this.getInnKeeperCount(
+        nt.miners,
+        nt.healers,
+        nt.smithies,
+        nt.lighters
+      );
     }
 
     if (dt.miners > 0) {
       ++dt.healers;
       ++dt.smithies;
       ++dt.smithies;
-    }
 
-    if (dt.miners > 0) {
       dt.innKeepers = this.getInnKeeperCount(
         dt.miners,
         dt.healers,
         dt.smithies,
         dt.lighters
       );
+
       dt.washers = this.getWashersCount(
         dt.miners,
         dt.healers,
         dt.smithies,
         dt.innKeepers
-      );
-    }
-
-    if (nt.miners > 0) {
-      nt.innKeepers = this.getInnKeeperCount(
-        nt.miners,
-        nt.healers,
-        nt.smithies,
-        nt.lighters
       );
     }
 
@@ -112,10 +106,15 @@ export class DiggingEstimator {
         nt.guardManagers
       );
 
-      nt.guards = Math.ceil(
-        (nt.healers + nt.miners + nt.smithies + nt.lighters + nt.washers) / 3
+      nt.guards = this.getGuardCount(
+        nt.miners,
+        nt.healers,
+        nt.smithies,
+        nt.lighters,
+        nt.washers
       );
-      nt.guardManagers = Math.ceil(nt.guards / 3);
+
+      nt.guardManagers =this.getGuardManagerCount(nt.guards);
 
       if (
         oldWashers === nt.washers &&
@@ -161,6 +160,20 @@ export class DiggingEstimator {
     lighters?: number
   ): number {
     return Math.ceil((miners + healers + smithies + (lighters || 0)) / 4) * 4;
+  }
+
+  private getGuardCount(
+    miners: number,
+    healers: number,
+    smithies: number,
+    lighters: number,
+    washers: number
+  ): number {
+    return Math.ceil((miners + healers + smithies + lighters + washers) / 3);
+  }
+
+  private getGuardManagerCount(guards: number): number {
+    return Math.ceil(guards / 3);
   }
 
   private getWashersCount(
