@@ -87,9 +87,21 @@ describe("digging estimator", () => {
     expect(result.nightTeam).toEqual(fakeNightTeam);
     expect(result.total).toBe(48);
   })
+
+  it('should have 1 lighter in night team by miners and more 1 for camp', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, 'granite');
+    expect(result.nightTeam.lighters).toBe(4);
+  })
+
+  it("should haven't lighter in day team by miners", () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
+    const result = estimator.tunnel(28, 2, "granite");
+    expect(result.dayTeam.lighters).toBe(0);
+  });
 });
 
-describe("Day team members", () => {
+describe("Day team members for dig tunnel 28m and 2days", () => {
   it("should be 3 miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     const result = estimator.tunnel(28, 2, "granite");
@@ -139,7 +151,7 @@ describe("Day team members", () => {
   });
 });
 
-describe("Night team members", () => {
+describe("Night team members for dig tunnel 28m and 2days", () => {
   it("should be 3 miners", () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7]);
     const result = estimator.tunnel(28, 2, "granite");
