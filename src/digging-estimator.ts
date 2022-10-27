@@ -1,6 +1,10 @@
-export class TunnelTooLongForDelayException extends Error {}
+export class TunnelTooLongForDelayException extends Error {
+  public message = 'Tunnel too long for delay'
+}
 
-export class InvalidFormatException extends Error {}
+export class InvalidFormatException extends Error {
+  public message = 'Invalid format'
+}
 
 export class Team {
   miners = 0;

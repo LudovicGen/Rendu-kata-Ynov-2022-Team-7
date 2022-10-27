@@ -267,6 +267,6 @@ describe("Throw Errors", () => {
     const estimator = new DiggingEstimator();
     expect(() => {
       estimator.tunnel(28.5, 2, "granite");
-    }).toThrowError();
+    }).toThrowError('Does not work in test mode');
   });
 });
