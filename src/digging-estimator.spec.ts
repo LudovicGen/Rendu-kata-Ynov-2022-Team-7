@@ -302,10 +302,30 @@ describe('Digging Estimator with location full goblins', () => {
     expect(teamComposition.nightTeam.protectors).toBe(2);
   })
 
-  it('should be more lighters cause of goblins', () => {
+  it('should be more lighters cause of goblins and protectors', () => {
     const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
     const teamComposition = estimator.tunnel(28, 2, 'granite');
     expect(teamComposition.dayTeam.lighters).toBe(0);
     expect(teamComposition.nightTeam.lighters).toBe(6);
+  })
+
+  it('should be more inn keepers cause of goblins and protectors', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
+    const teamComposition = estimator.tunnel(28, 2, 'granite');
+    expect(teamComposition.dayTeam.innKeepers).toBe(8);
+    expect(teamComposition.nightTeam.innKeepers).toBe(16);
+  })
+
+  it('should be more washers cause of goblins and protectors', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
+    const teamComposition = estimator.tunnel(28, 2, 'granite');
+    expect(teamComposition.dayTeam.washers).toBe(2);
+    expect(teamComposition.nightTeam.washers).toBe(3);
+  })
+
+  it('should be dig 28m in 2days in granite with location Goblins Return total 58 dwarf needed', () => {
+    const estimator = new MockDiggingEstimator([0, 3, 5.5, 7], true);
+    const teamComposition = estimator.tunnel(28, 2, 'granite');
+    expect(teamComposition.total).toBe(58);
   })
 })

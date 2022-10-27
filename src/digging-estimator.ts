@@ -139,7 +139,7 @@ export class TeamComposition {
   ): number {
     return (
       Math.ceil(
-        (team.miners + team.healers + team.smithies + (team.lighters || 0)) / 4
+        (team.miners + team.healers + team.smithies + team.protectors + (team.lighters || 0)) / 4
       ) * 4
     );
   }
@@ -167,7 +167,7 @@ export class TeamComposition {
         team.healers +
         team.smithies +
         team.innKeepers +
-        (team.protectors || 0) +
+        team.protectors +
         (team.lighters || 0) +
         (team.guards || 0) +
         (team.guardManagers || 0)) /
