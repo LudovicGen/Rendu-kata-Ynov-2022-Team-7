@@ -6,6 +6,9 @@ export class InvalidFormatException extends Error {
   public message = "Invalid format";
 }
 
+function lengthPerDay(length: number, days: number): number {
+  return Math.floor(length / days);
+}
 export class Team {
   miners = 0;
   healers = 0;
@@ -34,7 +37,6 @@ export class DiggingEstimator {
     const maxDigPerRotation = digPerRotation[digPerRotation.length - 1];
     const maxDigPerDay = 2 * maxDigPerRotation;
     const composition = new TeamComposition();
-    const lengthPerDay = Math.floor(length / days);
     const dt = composition.dayTeam;
     const nt = composition.nightTeam;
 
@@ -47,34 +49,13 @@ export class DiggingEstimator {
       throw new InvalidFormatException();
     }
 
-    if (lengthPerDay > maxDigPerDay) {
+    if (lengthPerDay(length, days) > maxDigPerDay) {
       throw new TunnelTooLongForDelayException();
     }
 
     // Miners
-    digPerRotation.slice(0, 3).forEach((dig) => {
-      if (dig < lengthPerDay) {
-        composition.dayTeam.miners++;
-      }
-      if (
-        lengthPerDay > maxDigPerRotation &&
-        dig + maxDigPerRotation < lengthPerDay
-      ) {
-        composition.nightTeam.miners++;
-      }
-    });
-
-    if (nt.miners > 0) {
-      ++nt.healers;
-      ++nt.smithies;
-      ++nt.smithies;
-      nt.lighters = nt.miners + 1;
-
-      nt.innKeepers = this.getInnKeeperCount(nt);
-
-      this.getWashersAndGuardAndGuardManager(nt);
-    }
-
+    this.getMiners(composition, length, days, digPerRotation, maxDigPerRotation);
+    this.nightShiftHandlings(nt);
     this.dayShiftHandlings(dt);
 
     composition.total = this.updateTotal(composition);
@@ -129,6 +110,35 @@ export class DiggingEstimator {
       team.washers = this.getWashersCount(team);
     }
     return team;
+  }
+
+  private nightShiftHandlings(team: Team): Team {
+    if (team.miners > 0) {
+      ++team.healers;
+      ++team.smithies;
+      ++team.smithies;
+      team.lighters = team.miners + 1;
+
+      team.innKeepers = this.getInnKeeperCount(team);
+
+      this.getWashersAndGuardAndGuardManager(team);
+    }
+    return team;
+  }
+  
+  private getMiners(teamCompo: TeamComposition, tunnelLength: number, days: number, distancePerDwarf: number[], MaxDistanceDwarf: number): TeamComposition {
+    distancePerDwarf.slice(0, 3).forEach((dig) => {
+      if (dig < lengthPerDay(tunnelLength, days)) {
+        teamCompo.dayTeam.miners++;
+      }
+      if (
+        lengthPerDay(tunnelLength, days) > MaxDistanceDwarf &&
+        dig + MaxDistanceDwarf < lengthPerDay(tunnelLength, days)
+      ) {
+        teamCompo.nightTeam.miners++;
+      }
+    });
+    return teamCompo;
   }
 
   private getInnKeeperCount(
